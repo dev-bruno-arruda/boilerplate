@@ -1,0 +1,59 @@
+services:
+  boilerplate:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    image: boilerplate:dev
+    volumes:
+      - ./:/usr/src/app
+      - /usr/src/app/node_modules
+    ports:
+      - "3000:3000"
+    networks:
+      - feegow-network
+
+  mysql:
+    image: mysql:latest
+    volumes:
+      - ./mysql:/var/lib/mysql
+    ports:
+      - "8083:3306"
+    environment:
+      file: "./.env.dev"
+      MYSQL_ROOT_PASSWORD: boilerplate
+      MYSQL_USER: boilerplate
+      MYSQL_PASSWORD: boilerplate
+      MYSQL_DATABASE: boilerplate
+    networks:
+      - feegow-network
+
+  redis:
+    image: redis:latest
+    ports:
+      - "8084:6379"
+    networks:
+      - feegow-network
+
+  rabbitmq:
+    image: rabbitmq:management
+    ports:
+      - "8085:5672"
+      - "8086:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: user
+      RABBITMQ_DEFAULT_PASS: password
+    networks:
+      - feegow-network
+
+  mongodb:
+    image: mongo:latest
+    volumes:
+      - ./mongodb:/data/db
+    ports:
+      - "27017:27017"
+    networks:
+      - feegow-network
+
+networks:
+  feegow-network:
+    driver: bridge
