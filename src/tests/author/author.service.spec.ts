@@ -1,16 +1,10 @@
 import { Test, TestingModule } from '@nestjs/testing';
-// import { BookService } from '../../modules/book/book.service';
-// import { BookRepository } from '../../modules/book/book.repository';
-// import { BookFactoryService } from '../../modules/book/book.factory';
 import { AuthorService } from '../../modules/author/author.service';
 import { AuthorRepository } from '../../modules/author/author.repository';
 import { AuthorFactoryService } from '../../modules/author/author.factory';
 import { getRepositoryToken } from '@nestjs/typeorm';
-//import { CreateBookDto, UpdateBookDto } from '../../core/dtos/book';
 import { CreateAuthorDto, UpdateAuthorDto } from '../../core/dtos/author';
-import { Book } from '../../core/entities/book.entity';
 import { Author } from '../../core/entities/author.entity';
-import { Genre } from '../../core/entities/genre.entity';
 import { UpdateResult } from 'typeorm';
 
 describe('AuthorService', () => {
@@ -50,7 +44,7 @@ describe('AuthorService', () => {
     expect(service).toBeDefined();
   });
 
-  it('should create a new book', async () => {
+  it('should create a new author', async () => {
     const createAuthorDto: CreateAuthorDto = {
       name: 'Test Author',
     };
@@ -70,7 +64,7 @@ describe('AuthorService', () => {
     expect(mockAuthorRepository.save).toHaveBeenCalledWith(mockCreatedAuthor);
   });
 
-  it('should get all books', async () => {
+  it('should get all authors', async () => {
     const mockAuthors = [
       { id: 1, name: 'Author 1' } as Author,
       { id: 2, name: 'Author 2'} as Author,

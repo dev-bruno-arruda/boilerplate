@@ -28,4 +28,7 @@ export class BookUseCases {
     const updatedBook = this.bookFactoryService.updateBook(updateBookDto);
     return this.bookService.updateBook(id, updatedBook);
   }
+  getBookFirstWhere(column: string, value: string | number, operator = '='): Promise<Book | undefined> {
+    return this.bookService.getFirstWhere(column, value, operator);
+  }
 }

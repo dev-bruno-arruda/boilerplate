@@ -1,8 +1,7 @@
-import { IsString, IsNotEmpty, IsDate, IsNumber } from 'class-validator';
+import { IsString, IsNotEmpty } from 'class-validator';
 
 export class CreateAuthorDto {
   @IsString()
   @IsNotEmpty()
   name: string;
-
 }

@@ -1,9 +1,3 @@
-// import { EntityRepository, Repository } from 'typeorm';
-// import { Book } from '../../core/entities/book.entity';
-
-// @EntityRepository(Book)
-// export class BookRepository extends Repository<Book> {}
-
 import { DataSource, Repository } from 'typeorm';
 import { Book } from '../../core/entities/book.entity';
 import {Injectable} from '@nestjs/common';

@@ -2,31 +2,35 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { BookService } from '../../modules/book/book.service';
 import { BookRepository } from '../../modules/book/book.repository';
 import { BookFactoryService } from '../../modules/book/book.factory';
+import { BookUseCases } from '../../modules/book/book.usecases';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { CreateBookDto, UpdateBookDto } from '../../core/dtos/book';
 import { Book } from '../../core/entities/book.entity';
 import { Author } from '../../core/entities/author.entity';
 import { Genre } from '../../core/entities/genre.entity';
 import { UpdateResult } from 'typeorm';
+import { mockBookRepository, mockBooks, mockBook, createBookDto, updateBookDto, mockUpdateResult, mockCreatedBook, mockUpdatedBook  } from './book.mocks';
 
-describe('BookService', () => {
+describe('BookService and BookUseCases', () => {
   let service: BookService;
-  let mockBookRepository: Partial<BookRepository>;
+  let useCases: BookUseCases;
+  //let mockBookRepository: Partial<BookRepository>;
   let bookFactoryService: BookFactoryService;
 
   beforeEach(async () => {
-    mockBookRepository = {
-      find: jest.fn(),
-      findOne: jest.fn(),
-      create: jest.fn(),
-      save: jest.fn(),
-      update: jest.fn(),
-    };
+    // mockBookRepository = {
+    //   find: jest.fn(),
+    //   findOne: jest.fn(),
+    //   create: jest.fn(),
+    //   save: jest.fn(),
+    //   update: jest.fn(),
+    // };
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         BookService,
         BookFactoryService,
+        BookUseCases,
         {
           provide: getRepositoryToken(BookRepository),
           useValue: mockBookRepository,
@@ -35,6 +39,7 @@ describe('BookService', () => {
     }).compile();
 
     service = module.get<BookService>(BookService);
+    useCases = module.get<BookUseCases>(BookUseCases);
     bookFactoryService = module.get<BookFactoryService>(BookFactoryService);
   });
 
@@ -42,26 +47,17 @@ describe('BookService', () => {
     jest.clearAllMocks();
   });
 
-  it('should be defined', () => {
+  it('BookService should be defined', () => {
     expect(service).toBeDefined();
   });
 
-  it('should create a new book', async () => {
-    const createBookDto: CreateBookDto = {
-      title: 'Test Book',
-      authorId: 1,
-      genreId: 1,
-      publishDate: new Date(),
-    };
+  it('BookUseCases should be defined', () => {
+    expect(useCases).toBeDefined();
+  });
 
-    const mockCreatedBook = {
-      id: 1,
-      title: createBookDto.title,
-      author: { id: createBookDto.authorId } as Author,
-      genre: { id: createBookDto.genreId } as Genre,
-      publishDate: createBookDto.publishDate,
-    } as Book;
-
+  // Tests for BookService
+  it('should create a new book in BookService', async () => {
+    
     jest.spyOn(bookFactoryService, 'createNewBook').mockReturnValue(mockCreatedBook);
     jest.spyOn(mockBookRepository, 'save').mockResolvedValue(mockCreatedBook);
 
@@ -72,11 +68,7 @@ describe('BookService', () => {
     expect(mockBookRepository.save).toHaveBeenCalledWith(mockCreatedBook);
   });
 
-  it('should get all books', async () => {
-    const mockBooks = [
-      { id: 1, title: 'Book 1', author: { id: 1 } as Author, genre: { id: 1 } as Genre, publishDate: new Date() } as Book,
-      { id: 2, title: 'Book 2', author: { id: 2 } as Author, genre: { id: 2 } as Genre, publishDate: new Date() } as Book,
-    ];
+  it('should get all books in BookService', async () => {
 
     jest.spyOn(mockBookRepository, 'find').mockResolvedValue(mockBooks);
 
@@ -86,8 +78,7 @@ describe('BookService', () => {
     expect(mockBookRepository.find).toHaveBeenCalled();
   });
 
-  it('should get a book by ID', async () => {
-    const mockBook = { id: 1, title: 'Test Book', author: { id: 1 } as Author, genre: { id: 1 } as Genre, publishDate: new Date() } as Book;
+  it('should get a book by ID in BookService', async () => {
 
     jest.spyOn(mockBookRepository, 'findOne').mockResolvedValue(mockBook);
 
@@ -97,27 +88,7 @@ describe('BookService', () => {
     expect(mockBookRepository.findOne).toHaveBeenCalledWith({ where: { id: 1 } });
   });
 
-  it('should update a book', async () => {
-    const updateBookDto: UpdateBookDto = {
-      title: 'Updated Book',
-      authorId: 1,
-      genreId: 1,
-      publishDate: new Date(),
-    };
-
-    const mockUpdatedBook = {
-      id: 1,
-      title: updateBookDto.title,
-      author: { id: updateBookDto.authorId } as Author,
-      genre: { id: updateBookDto.genreId } as Genre,
-      publishDate: updateBookDto.publishDate,
-    } as Book;
-
-    const mockUpdateResult: UpdateResult = {
-      affected: 1,
-      raw: {},
-      generatedMaps: [],
-    };
+  it('should update a book in BookService', async () => {
 
     jest.spyOn(bookFactoryService, 'updateBook').mockReturnValue(mockUpdatedBook);
     jest.spyOn(mockBookRepository, 'update').mockResolvedValue(mockUpdateResult);
@@ -130,4 +101,63 @@ describe('BookService', () => {
     expect(mockBookRepository.update).toHaveBeenCalledWith(1, mockUpdatedBook);
     expect(mockBookRepository.findOne).toHaveBeenCalledWith({ where: { id: 1 } });
   });
+
+  // Tests for BookUseCases
+  it('should get all books in BookUseCases', async () => {
+   
+    jest.spyOn(service, 'getAllBooks').mockResolvedValue(mockBooks);
+
+    const result = await useCases.getAllBooks();
+
+    expect(result).toEqual(mockBooks);
+    expect(service.getAllBooks).toHaveBeenCalled();
+  });
+
+  it('should get a book by ID in BookUseCases', async () => {
+
+    jest.spyOn(service, 'getBookById').mockResolvedValue(mockBook);
+
+    const result = await useCases.getBookById(1);
+
+    expect(result).toEqual(mockBook);
+    expect(service.getBookById).toHaveBeenCalledWith(1);
+  });
+
+  it('should create a new book in BookUseCases', async () => {
+
+    jest.spyOn(bookFactoryService, 'createNewBook').mockReturnValue(mockCreatedBook);
+    jest.spyOn(service, 'createBook').mockResolvedValue(mockCreatedBook);
+
+    const result = await useCases.createBook(createBookDto);
+
+    expect(result).toEqual(mockCreatedBook);
+    expect(bookFactoryService.createNewBook).toHaveBeenCalledWith(createBookDto);
+    expect(service.createBook).toHaveBeenCalledWith(mockCreatedBook);
+  });
+
+  it('should update a book in BookUseCases', async () => {
+    jest.spyOn(bookFactoryService, 'updateBook').mockReturnValue(mockUpdatedBook);
+    jest.spyOn(service, 'updateBook').mockResolvedValue(mockUpdatedBook);
+
+    const result = await useCases.updateBook(1, updateBookDto);
+
+    expect(result).toEqual(mockUpdatedBook);
+    expect(bookFactoryService.updateBook).toHaveBeenCalledWith(updateBookDto);
+    expect(service.updateBook).toHaveBeenCalledWith(1, mockUpdatedBook);
+  });
+
+  it('should get first where', async () => {
+    const column = 'id';
+    const value = 1;
+    const operator = '=';
+  
+    jest.spyOn(mockBookRepository, 'firstWhere').mockResolvedValue(mockBook);
+  
+    const result = await service.getFirstWhere(column, value, operator);
+  
+    expect(result).toEqual(mockBook);
+    expect(mockBookRepository.firstWhere).toHaveBeenCalledWith(column, value, operator);
+  });
+  
+  
 });

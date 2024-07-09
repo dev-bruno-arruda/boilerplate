@@ -31,4 +31,8 @@ export class BookService {
     await this.bookRepository.update(id, updatedBook);
     return this.getBookById(id);
   }
+  
+  async getFirstWhere(column: string, value: string | number, operator = '='): Promise<Book | undefined> {
+    return this.bookRepository.firstWhere(column, value, operator);
+  }
 }

@@ -4,10 +4,11 @@ import { AuthorController } from './author.controller';
 import { AuthorService } from './author.service';
 import { AuthorUseCases } from './author.usecases';
 import { AuthorRepository } from './author.repository';
+import { AuthorFactoryService } from './author.factory';
 
 @Module({
   imports: [TypeOrmModule.forFeature([AuthorRepository])],
   controllers: [AuthorController],
-  providers: [AuthorService, AuthorUseCases],
+  providers: [AuthorService, AuthorUseCases, AuthorFactoryService],
 })
 export class AuthorModule {}
